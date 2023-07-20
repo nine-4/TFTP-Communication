@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     client.sendto("CLIENT: Hello server".encode("utf-8"), (server_address, PORT))
 
-    print(client.recvfrom(1024)[0].decode("utf-8"))
+    print(client.recvfrom(512)[0].decode("utf-8"))
 
     #
     option = input("Do you want to upload or download?: ")
@@ -26,11 +26,11 @@ if __name__ == "__main__":
         client.sendto(filename.encode("utf-8"), (server_address, PORT))
         print(f"Sending {filename} ...")
 
-        f = open(filename, "r")
-        data = f.read(1024)
+        f = open(filename, "rb")
+        data = f.read(512)
         while (data):
-            if (client.sendto(data.encode("utf-8"), (server_address, PORT))):
-                data = f.read(1024)
+            if (client.sendto(data, (server_address, PORT))):
+                data = f.read(512)
                 time.sleep(0.02)  # Give receiver a bit time to save
 
         client.close()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         client.sendto(filename_to_download.encode("utf-8"), (server_address, PORT))
 
         while True:
-            data, addr = client.recvfrom(1024)
+            data, addr = client.recvfrom(512)
             if data:
                 print("Receiving file:", data.decode("utf-8"))
                 filename = input("What do want to name your file: ")
@@ -52,7 +52,7 @@ if __name__ == "__main__":
             while True:
                 ready = select.select([client], [], [], timeout)
                 if ready[0]:
-                    data, addr = client.recvfrom(1024)
+                    data, addr = client.recvfrom(512)
                     f.write(data)
                 else:
                     print("Finished receiving:", filename)
